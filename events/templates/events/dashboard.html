@@ -1,0 +1,48 @@
+{% extends 'events/base.html' %}
+{% block title %}Dashboard - EventMgmt{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-bold mb-6 text-rose-600">Dashboard</h1>
+
+{% comment %} Stats Grid with horizontal flex layout {% endcomment %}
+<div class="flex flex-col md:flex-row md:space-x-6 space-y-6 md:space-y-0 mb-8">
+  <div class="flex-1 bg-white rounded-lg shadow p-6 text-center">
+    <h2 class="text-4xl font-extrabold text-rose-600">{{ counts.participants }}</h2>
+    <p class="text-gray-600 mt-1">Total Participants</p>
+  </div>
+  <div class="flex-1 bg-white rounded-lg shadow p-6 text-center">
+    <h2 class="text-4xl font-extrabold text-rose-600">{{ counts.events }}</h2>
+    <p class="text-gray-600 mt-1">Total Events</p>
+  </div>
+  <div class="flex-1 bg-white rounded-lg shadow p-6 text-center">
+    <h2 class="text-4xl font-extrabold text-rose-600">{{ counts.categories }}</h2>
+    <p class="text-gray-600 mt-1">Total Categories</p>
+  </div>
+  <div class="flex-1 bg-white rounded-lg shadow p-6 text-center">
+    <h2 class="text-4xl font-extrabold text-rose-600">{{ today_events|length }}</h2>
+    <p class="text-gray-600 mt-1">Events Today</p>
+  </div>
+</div>
+
+{% comment %} Today's Events List {% endcomment %}
+<div class="bg-white rounded-lg shadow p-6">
+  <h2 class="text-2xl font-semibold mb-4">Today's Events</h2>
+
+  {% if today_events %}
+    <ul class="divide-y divide-gray-200">
+      {% for event in today_events %}
+      <li class="py-3 flex justify-between items-center">
+        <div>
+          <h3 class="font-semibold text-lg text-rose-600">{{ event.name }}</h3>
+          <p class="text-gray-600">{{ event.category.name }}</p>
+        </div>
+        <div class="text-gray-500">{{ event.time|time:"H:i" }}</div>
+      </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-gray-500 italic">No events scheduled for today.</p>
+  {% endif %}
+</div>
+
+{% endblock %}

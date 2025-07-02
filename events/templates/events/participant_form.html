@@ -1,0 +1,28 @@
+{% extends 'events/base.html' %}
+{% block title %}{{ title }} - EventMgmt{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-bold mb-6 text-rose-600">{{ title }}</h1>
+
+<form method="POST" class="bg-white p-6 rounded-lg shadow max-w-lg mx-auto space-y-4">
+  {% csrf_token %}
+  {{ form.non_field_errors }}
+  {% for field in form %}
+    <div>
+      <label class="block font-semibold mb-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      <p class="text-sm text-red-600">{{ field.errors }}</p>
+      {% if field.help_text %}
+        <p class="text-gray-500 text-xs mt-1">{{ field.help_text }}</p>
+      {% endif %}
+    </div>
+  {% endfor %}
+
+  <div class="text-center">
+    <button type="submit" class="bg-rose-600 hover:bg-rose-700 text-white font-semibold px-6 py-2 rounded">
+      Save
+    </button>
+    <a href="{% url 'participant-list' %}" class="ml-4 text-gray-600 hover:underline">Cancel</a>
+  </div>
+</form>
+{% endblock %}

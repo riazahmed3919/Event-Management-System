@@ -1,8 +1,7 @@
 from django.contrib import admin
-from django.urls import path
-from events.views import home
+from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', home)
+    path('', include('events.urls')),
 ]
