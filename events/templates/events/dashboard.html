@@ -1,5 +1,5 @@
 {% extends 'events/base.html' %}
-{% block title %}Dashboard - EventMgmt{% endblock %}
+{% block title %}Dashboard - EM{% endblock %}
 
 {% block content %}
 <h1 class="text-3xl font-bold mb-6 text-rose-600">Dashboard</h1>
@@ -29,17 +29,15 @@
   <h2 class="text-2xl font-semibold mb-4">Today's Events</h2>
 
   {% if today_events %}
-    <ul class="divide-y divide-gray-200">
-      {% for event in today_events %}
-      <li class="py-3 flex justify-between items-center">
-        <div>
-          <h3 class="font-semibold text-lg text-rose-600">{{ event.name }}</h3>
-          <p class="text-gray-600">{{ event.category.name }}</p>
-        </div>
-        <div class="text-gray-500">{{ event.time|time:"H:i" }}</div>
-      </li>
-      {% endfor %}
-    </ul>
+    {% for event in today_events %}
+    <li class="py-3 flex justify-between items-center">
+      <div>
+        <h3 class="font-semibold text-lg text-rose-600">{{ event.name }}</h3>
+        <p class="text-gray-600">{{ event.category.name }}</p>
+      </div>
+      <div class="text-gray-500">{{ event.time|time:"H:i" }}</div>
+    </li>
+    {% endfor %}
   {% else %}
     <p class="text-gray-500 italic">No events scheduled for today.</p>
   {% endif %}
