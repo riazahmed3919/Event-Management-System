@@ -12,16 +12,38 @@
   {% comment %} Navbar {% endcomment %}
   <nav class="bg-white shadow-md sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
-      {% comment %} Left: Brand {% endcomment %}
+      <!-- Left: Brand -->
       <a href="{% url 'dashboard' %}" class="text-2xl font-bold text-rose-600 hover:text-rose-700">
         Event Management
       </a>
-      {% comment %} Right: Nav links {% endcomment %}
-      <div class="space-x-8 flex">
+
+      <!-- Right: Nav links + Auth buttons -->
+      <div class="flex items-center space-x-8">
         <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-rose-600 font-semibold">Dashboard</a>
         <a href="{% url 'event-list' %}" class="text-gray-700 hover:text-rose-600 font-semibold">Events</a>
         <a href="{% url 'category-list' %}" class="text-gray-700 hover:text-rose-600 font-semibold">Categories</a>
         <a href="{% url 'participant-list' %}" class="text-gray-700 hover:text-rose-600 font-semibold">Participants</a>
+
+        <div class="space-x-4 flex items-center">
+          {% if user.is_authenticated %}
+            <form method="post" action="{% url 'logout' %}" class="inline">
+              {% csrf_token %}
+              <button type="submit"
+                class="px-4 py-2 rounded-md bg-rose-600 text-white font-semibold hover:bg-rose-700 focus:outline-none">
+                Logout
+              </button>
+            </form>
+          {% else %}
+            <a href="{% url 'login' %}"
+               class="px-4 py-2 rounded-md bg-rose-600 text-white font-semibold hover:bg-rose-700 focus:outline-none">
+              Login
+            </a>
+            <a href="{% url 'signup' %}"
+               class="px-4 py-2 rounded-md bg-rose-600 text-white font-semibold hover:bg-rose-700 focus:outline-none">
+              Sign Up
+            </a>
+          {% endif %}
+        </div>
       </div>
     </div>
   </nav>
