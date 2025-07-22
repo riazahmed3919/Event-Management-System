@@ -1,0 +1,8 @@
+{% extends "events/base.html" %}
+{% block title %}Participant Dashboard{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto mt-12 p-6 bg-white rounded shadow">
+  <h1 class="text-3xl font-bold text-rose-600 mb-4">Welcome, {{ user.first_name|default:user.username }} {{user.last_name}}!</h1>
+  <p>Thank you for joining our events. You can view the upcoming events and participant list from the navigation above.</p>
+</div>
+{% endblock %}

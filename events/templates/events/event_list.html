@@ -4,7 +4,9 @@
 {% block content %}
 <div class="flex justify-between items-center mb-6">
   <h1 class="text-3xl font-bold text-rose-600">Events</h1>
+  {% if is_admin or is_organizer %}
   <a href="{% url 'event-create' %}" class="bg-rose-600 hover:bg-rose-700 text-white font-semibold px-4 py-2 rounded">Add Event</a>
+  {% endif %}
 </div>
 
 <table class="min-w-full bg-white shadow rounded-lg overflow-hidden">
@@ -16,7 +18,9 @@
       <th class="py-3 px-4 text-left">Time</th>
       <th class="py-3 px-4 text-left">Location</th>
       <th class="py-3 px-4 text-center">Participants</th>
+      {% if is_admin or is_organizer %}
       <th class="py-3 px-4 text-center">Actions</th>
+      {% endif %}
     </tr>
   </thead>
   <tbody>
@@ -28,6 +32,7 @@
       <td class="py-3 px-4">{{ event.time|time:"H:i" }}</td>
       <td class="py-3 px-4">{{ event.location }}</td>
       <td class="py-3 px-4 text-center">{{ event.participants.count }}</td>
+      {% if is_admin or is_organizer %}
       <td class="py-3 px-4 text-center space-x-2">
         <a href="{% url 'event-update' event.id %}" class="text-blue-600 hover:underline">Edit</a>
   
@@ -39,9 +44,10 @@
           </button>
         </form>
       </td>
+      {% endif %}
     </tr>
     {% empty %}
-    <tr><td colspan="7" class="text-center py-4 text-gray-500 italic">No events found.</td></tr>
+    <tr><td colspan="{% if is_admin or is_organizer %}7{% else %}6{% endif %}" class="text-center py-4 text-gray-500 italic">No events found.</td></tr>
     {% endfor %}
   </tbody>
 </table>

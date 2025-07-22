@@ -9,51 +9,44 @@
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
 
-  {% comment %} Navbar {% endcomment %}
-  <nav class="bg-white shadow-md sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center">
-      <!-- Left: Brand -->
-      <a href="{% url 'dashboard' %}" class="text-2xl font-bold text-rose-600 hover:text-rose-700">
-        Event Management
-      </a>
+  <nav class="bg-white shadow sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="text-2xl font-bold text-rose-600">
+        <a href="{% url 'public-home' %}">Event Management</a>
+      </div>
+      <div class="space-x-4 text-sm">
+        {% if user.is_authenticated %}
+          {% if is_admin %}
+            <a href="{% url 'admin-dashboard' %}" class="hover:text-rose-600">Dashboard</a>
+            <a href="{% url 'group-list' %}" class="hover:text-rose-600">Groups</a>
+            <a href="{% url 'category-list' %}" class="hover:text-rose-600">Categories</a>
+            <a href="{% url 'event-list' %}" class="hover:text-rose-600">Events</a>
+            <a href="{% url 'user-list' %}" class="hover:text-rose-600">Users</a>
 
-      <!-- Right: Nav links + Auth buttons -->
-      <div class="flex items-center space-x-8">
-        <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-rose-600 font-semibold">Dashboard</a>
-        <a href="{% url 'event-list' %}" class="text-gray-700 hover:text-rose-600 font-semibold">Events</a>
-        <a href="{% url 'category-list' %}" class="text-gray-700 hover:text-rose-600 font-semibold">Categories</a>
-        <a href="{% url 'participant-list' %}" class="text-gray-700 hover:text-rose-600 font-semibold">Participants</a>
+          {% elif is_organizer %}
+            <a href="{% url 'organizer-dashboard' %}" class="hover:text-rose-600">Dashboard</a>
+            <a href="{% url 'event-list' %}" class="hover:text-rose-600">Event</a>
+            <a href="{% url 'category-list' %}" class="hover:text-rose-600">Categories</a>
+            <a href="{% url 'participant-list' %}" class="hover:text-rose-600">Participants</a>
 
-        <div class="space-x-4 flex items-center">
-          {% if user.is_authenticated %}
-            <form method="post" action="{% url 'logout' %}" class="inline">
-              {% csrf_token %}
-              <button type="submit"
-                class="px-4 py-2 rounded-md bg-rose-600 text-white font-semibold hover:bg-rose-700 focus:outline-none">
-                Logout
-              </button>
-            </form>
-          {% else %}
-            <a href="{% url 'login' %}"
-               class="px-4 py-2 rounded-md bg-rose-600 text-white font-semibold hover:bg-rose-700 focus:outline-none">
-              Login
-            </a>
-            <a href="{% url 'signup' %}"
-               class="px-4 py-2 rounded-md bg-rose-600 text-white font-semibold hover:bg-rose-700 focus:outline-none">
-              Sign Up
-            </a>
+          {% elif is_participant %}
+            <a href="{% url 'participant-dashboard' %}" class="hover:text-rose-600">Dashboard</a>
+            <a href="{% url 'event-list' %}" class="hover:text-rose-600">All Events</a>
+            <a href="{% url 'participant-participants-list' %}" class="hover:text-rose-600">Participants</a>
           {% endif %}
-        </div>
+
+          <a href="{% url 'logout' %}" class="inline-block bg-rose-500 text-white px-4 py-2 rounded-full hover:bg-rose-600 transition">Logout</a>
+        {% else %}
+          <a href="{% url 'login' %}" class="inline-block bg-rose-600 text-white px-5 py-2 rounded-full text-md font-semibold hover:bg-rose-700 transition">Login</a>
+          <a href="{% url 'signup' %}" class="inline-block ml-4 bg-white text-rose-600 border border-rose-600 px-5 py-2 rounded-full text-md font-semibold hover:bg-rose-50 transition">Sign Up</a>
+        {% endif %}
       </div>
     </div>
   </nav>
 
-  {% comment %} Main content {% endcomment %}
-  <main class="flex-grow max-w-7xl mx-auto p-6">
-    {% block content %}{% endblock %}
-  </main>
+  {% block content %}
+  {% endblock %}
 
-  {% comment %} Footer {% endcomment %}
   <footer class="bg-rose-600 text-center py-4 shadow-inner mt-auto">
     <p class="text-white text-sm">© 2025 Event Management System</p>
   </footer>

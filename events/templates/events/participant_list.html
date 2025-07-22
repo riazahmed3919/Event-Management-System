@@ -1,48 +1,34 @@
 {% extends 'events/base.html' %}
-{% block title %}Participants - EventMgmt{% endblock %}
+
+{% block title %}Participants{% endblock %}
 
 {% block content %}
-<div class="flex justify-between items-center mb-6">
-  <h1 class="text-3xl font-bold text-rose-600">Participants</h1>
-  <a href="{% url 'participant-create' %}" class="bg-rose-600 hover:bg-rose-700 text-white font-semibold px-4 py-2 rounded">Add Participant</a>
-</div>
+<div class="max-w-6xl mx-auto px-6 py-8">
+  <h1 class="text-3xl font-bold text-rose-600 mb-6">Participants List</h1>
 
-<table class="min-w-full bg-white shadow rounded-lg overflow-hidden">
-  <thead class="bg-rose-100 text-rose-700 uppercase text-sm font-semibold">
-    <tr>
-      <th class="py-3 px-4 text-left">Name</th>
-      <th class="py-3 px-4 text-left">Email</th>
-      <th class="py-3 px-4 text-left">Events</th>
-      <th class="py-3 px-4 text-center">Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for participant in participants %}
-    <tr class="border-b hover:bg-rose-50">
-      <td class="py-3 px-4">{{ participant.name }}</td>
-      <td class="py-3 px-4">{{ participant.email }}</td>
-      <td class="py-3 px-4">
-        {% for event in participant.events.all %}
-          <span class="inline-block bg-rose-200 text-rose-700 rounded-full px-3 py-1 text-xs font-semibold mr-2">{{ event.name }}</span>
+  <div class="overflow-x-auto bg-white shadow-md rounded-xl">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-rose-600 text-white">
+        <tr>
+          <th class="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Username</th>
+          <th class="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Email</th>
+          <th class="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Name</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for participant in participants %}
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-4">{{ participant.username }}</td>
+          <td class="px-6 py-4">{{ participant.email }}</td>
+          <td class="px-6 py-4">{{ participant.get_full_name }}</td>
+        </tr>
         {% empty %}
-          <span class="text-gray-500 italic">No events</span>
+        <tr>
+          <td colspan="3" class="px-6 py-4 text-gray-500">No participants found.</td>
+        </tr>
         {% endfor %}
-      </td>
-      <td class="py-3 px-4 text-center space-x-2">
-        <a href="{% url 'participant-update' participant.id %}" class="text-blue-600 hover:underline">Edit</a>
-
-        <form action="{% url 'participant-delete' participant.id %}" method="post" class="inline">
-          {% csrf_token %}
-          <button type="submit" onclick="return confirm('Are you sure you want to delete this participant?');" 
-          class="text-red-600 hover:underline bg-transparent border-0 cursor-pointer p-0 font-normal">
-          Delete
-          </button>
-        </form>
-      </td>
-    </tr>
-    {% empty %}
-    <tr><td colspan="4" class="text-center py-4 text-gray-500 italic">No participants found.</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
+      </tbody>
+    </table>
+  </div>
+</div>
 {% endblock %}

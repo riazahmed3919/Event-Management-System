@@ -1,5 +1,5 @@
 from django import forms
-from events.models import Event, Category, Participant
+from events.models import Event, Category
 
 class StyledFormMixin:
     default_classes = "border border-gray-300 p-3 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500"
@@ -40,19 +40,6 @@ class CategoryForm(StyledFormMixin, forms.ModelForm):
     class Meta:
         model = Category
         fields = ['name', 'description']
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.apply_styled_widget()
-
-class ParticipantForm(StyledFormMixin, forms.ModelForm):
-    class Meta:
-        model = Participant
-        fields = ['name', 'email', 'events']
-
-        widgets = {
-            'events': forms.CheckboxSelectMultiple
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

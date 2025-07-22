@@ -1,0 +1,31 @@
+{% extends "events/base.html" %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="bg-rose-50 py-16 shadow-inner">
+  <div class="max-w-5xl mx-auto px-6 text-center">
+    <h1 class="text-4xl md:text-5xl font-bold text-rose-600 mb-4">Welcome to Event Management</h1>
+    <p class="text-gray-700 text-lg md:text-xl leading-relaxed max-w-3xl mx-auto">
+      Our Event Management platform helps you easily create, manage, and participate in events. Whether you're an Organizer planning activities, a Participant looking to join, or an Admin overseeing operations — this system gives you full control and flexibility to make every event a success.
+    </p>
+  </div>
+</div>
+
+<!-- Optional: Stats Section -->
+<div class="max-w-6xl mx-auto mt-16 px-4 grid grid-cols-1 md:grid-cols-3 gap-6 text-center mb-8">
+  <div class="bg-white shadow-md rounded-xl p-6 hover:shadow-lg transition">
+    <h2 class="text-2xl font-bold text-rose-600 mb-2">🗓️ Running Events</h2>
+    <p class="text-3xl text-gray-800 font-semibold">{{ total_events|default:"–" }}</p>
+  </div>
+  <div class="bg-white shadow-md rounded-xl p-6 hover:shadow-lg transition">
+    <h2 class="text-2xl font-bold text-rose-600 mb-2">👥 Participants</h2>
+    <p class="text-3xl text-gray-800 font-semibold">{{ total_participants|default:"–" }}</p>
+  </div>
+  <div class="bg-white shadow-md rounded-xl p-6 hover:shadow-lg transition">
+    <h2 class="text-2xl font-bold text-rose-600 mb-2">🏷️ Categories</h2>
+    <p class="text-3xl text-gray-800 font-semibold">{{ total_categories|default:"–" }}</p>
+  </div>
+</div>
+{% endblock %}

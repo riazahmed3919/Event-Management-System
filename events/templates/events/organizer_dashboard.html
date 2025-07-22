@@ -1,0 +1,26 @@
+{% extends 'events/base.html' %}
+
+{% block title %}Organizer Dashboard{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-6 py-8">
+  <h1 class="text-4xl font-bold text-rose-600 mb-8">Organizer Dashboard</h1>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="bg-white shadow-md rounded-xl p-6 border-t-4 border-rose-500">
+      <h2 class="text-lg text-gray-600">Total Events</h2>
+      <p class="text-3xl font-bold text-rose-600 mt-2">{{ counts.events }}</p>
+    </div>
+
+    <div class="bg-white shadow-md rounded-xl p-6 border-t-4 border-rose-500">
+      <h2 class="text-lg text-gray-600">Total Categories</h2>
+      <p class="text-3xl font-bold text-rose-600 mt-2">{{ counts.categories }}</p>
+    </div>
+
+    <div class="bg-white shadow-md rounded-xl p-6 border-t-4 border-rose-500">
+      <h2 class="text-lg text-gray-600">Total Participants</h2>
+      <p class="text-3xl font-bold text-rose-600 mt-2">{{ counts.participants }}</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

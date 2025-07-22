@@ -1,0 +1,33 @@
+{% extends "events/base.html" %}
+{% block title %}Participants List{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto mt-10 px-4">
+  <h1 class="text-4xl font-extrabold text-rose-600 mb-6">Participants List</h1>
+  <table class="min-w-full bg-white shadow rounded overflow-hidden">
+    <thead class="bg-rose-600 text-white">
+      <tr>
+        <th class="py-3 px-6 text-left">Participant Name</th>
+        <th class="py-3 px-6 text-left">Events Participated</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for participant in participants %}
+        <tr class="border-b hover:bg-gray-100">
+          <td class="py-4 px-6">{{ participant.get_full_name|default:participant.username }}</td>
+          <td class="py-4 px-6">
+            {% for event in participant.event_set.all %}
+              <span class="inline-block bg-rose-100 text-rose-600 px-2 py-1 rounded mr-2 mb-1">{{ event.title }}</span>
+            {% empty %}
+              <span class="text-gray-500">No events</span>
+            {% endfor %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="2" class="text-center py-6 text-gray-500">No participants found.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
