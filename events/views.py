@@ -7,8 +7,9 @@ from events.models import Event, Category
 from events.forms import EventForm, CategoryForm
 from django.utils.timezone import now
 from django.views.decorators.http import require_http_methods
-from django.contrib.auth.forms import UserCreationForm
 from django.db.models import Prefetch
+from django.core.mail import send_mail
+from django.conf import settings
 
 # Role checkers
 def is_admin(user):
@@ -29,10 +30,13 @@ def public_home(request):
     total_participants = User.objects.filter(groups__name='Participant').count()
     total_categories = Category.objects.count()
 
+    upcoming_events = Event.objects.filter(date__gte=now().date()).order_by('date')[:2]
+
     context = {
         "total_events": total_events,
         "total_participants": total_participants,
         "total_categories": total_categories,
+        "upcoming_events": upcoming_events,
     }
 
     return render(request, "events/public_home.html", context)
@@ -426,3 +430,48 @@ def user_list(request):
         'roles': roles,
     }
     return render(request, 'events/user_list.html', context)
+
+# RSVP
+def send_rsvp_confirmation_email(user, event):
+    subject = f"RSVP Confirmation for {event.name}"
+    message = (
+        f"Hi {user.first_name or user.username},\n\n"
+        f"You have successfully RSVPed for the event '{event.name}'.\n"
+        f"Date: {event.date}\n"
+        f"Time: {event.time}\n"
+        f"Location: {event.location}\n\n"
+        f"Thank you for your interest!"
+    )
+    send_mail(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [user.email],
+        fail_silently=False,
+    )
+
+@login_required
+@user_passes_test(is_participant)
+def rsvp_event(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+
+    if request.user in event.participants.all():
+        messages.warning(request, "You have already RSVPed for this event!")
+    else:
+        event.participants.add(request.user)
+        messages.success(request, "You have successfully RSVPed for this event!")
+        send_rsvp_confirmation_email(request.user, event)
+
+    return redirect('event-list')
+
+@login_required
+def cancel_rsvp(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+
+    if request.user in event.participants.all():
+        event.participants.remove(request.user)
+        messages.success(request, "Your RSVP has been cancelled.")
+    else:
+        messages.warning(request, "You have not RSVPed for this event.")
+
+    return redirect('event-list')

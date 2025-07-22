@@ -7,38 +7,35 @@
 
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-    <!-- Total Events Card -->
+    {% comment %} Total Events Card {% endcomment %}
     <div class="bg-white shadow-md rounded-xl p-6 border-t-4 border-rose-500">
       <h2 class="text-lg text-gray-600">Total Events</h2>
       <p class="text-3xl font-bold text-rose-600 mt-2">{{ counts.events }}</p>
     </div>
 
-    <!-- Total Categories Card -->
+    {% comment %} Total Categories Card {% endcomment %}
     <div class="bg-white shadow-md rounded-xl p-6 border-t-4 border-rose-500">
       <h2 class="text-lg text-gray-600">Total Categories</h2>
       <p class="text-3xl font-bold text-rose-600 mt-2">{{ counts.categories }}</p>
     </div>
 
-    <!-- Total Participants Card -->
+    {% comment %} Total Participants Card {% endcomment %}
     <div class="bg-white shadow-md rounded-xl p-6 border-t-4 border-rose-500">
       <h2 class="text-lg text-gray-600">Total Participants</h2>
       <p class="text-3xl font-bold text-rose-600 mt-2">{{ counts.participants }}</p>
     </div>
 
-    <!-- Total Groups Card -->
+    {% comment %} Total Groups Card {% endcomment %}
     <div class="bg-white shadow-md rounded-xl p-6 border-t-4 border-rose-500">
       <h2 class="text-lg text-gray-600">Total Groups</h2>
       <p class="text-3xl font-bold text-rose-600 mt-2">{{ counts.groups }}</p>
     </div>
 
-    <!-- Today's Events Card -->
+    {% comment %} Today's Events Card {% endcomment %}
     <div class="bg-white rounded-xl p-6 border-t-4 border-rose-500 shadow-md">
       <h3 class="text-gray-600 text-lg">Today's Events</h3>
       <p class="text-rose-600 text-3xl font-bold mt-2">{{ counts.today_events }}</p>
     </div>
-
-
-
   </div>
 </div>
 {% endblock %}

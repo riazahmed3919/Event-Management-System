@@ -6,7 +6,6 @@
   <h1 class="text-3xl font-bold text-rose-600">Users</h1>
 
   <div class="flex items-center space-x-4">
-    <!-- Filter dropdown -->
     <form method="get" class="inline-block">
       <select name="role" onchange="this.form.submit()" 
               class="border rounded px-3 py-2">
@@ -17,7 +16,6 @@
       </select>
     </form>
 
-    <!-- Add User Button -->
     <a href="{% url 'participant-add' %}" 
        class="bg-rose-600 text-white px-4 py-2 rounded hover:bg-rose-700 transition">
       Add User
