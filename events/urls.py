@@ -6,6 +6,8 @@ urlpatterns = [
     path('signup/', views.signup, name='signup'),
     path('login/', views.custom_login, name='login'),
     path('logout/', views.custom_logout, name='logout'),
+    path('activate/<uidb64>/<token>/', views.activate_account, name='activate'),
+    path('access-restricted/', views.access_restricted, name='access-restricted'),
 
     # User list for admins
     path('users/', views.user_list, name='user-list'),
@@ -46,5 +48,5 @@ urlpatterns = [
 
     # RSVP
     path("events/<int:event_id>/rsvp/", views.rsvp_event, name="rsvp-event"),
-    path('events/<int:event_id>/cancel_rsvp/', views.cancel_rsvp, name='cancel_rsvp'),
+    path('events/<int:event_id>/cancel_rsvp/', views.cancel_rsvp, name='cancel-rsvp'),
 ]

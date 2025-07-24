@@ -8,8 +8,9 @@ from events.forms import EventForm, CategoryForm
 from django.utils.timezone import now
 from django.views.decorators.http import require_http_methods
 from django.db.models import Prefetch
-from django.core.mail import send_mail
-from django.conf import settings
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
+from django.contrib.auth.tokens import default_token_generator
 
 # Role checkers
 def is_admin(user):
@@ -79,16 +80,38 @@ def signup(request):
                 password=password1,
                 first_name=first_name,
                 last_name=last_name,
+                is_active=False
             )
+            user.save()
+
             participant_group, _ = Group.objects.get_or_create(name='Participant')
             user.groups.add(participant_group)
-            messages.success(request, "Account created successfully! Please log in.")
+
+            messages.success(request, "Account created successfully! Please check your email to activate your account.")
             return redirect('login')
 
         else:
             messages.error(request, "Please fix the errors below.")
 
     return render(request, "events/signup.html", {"form_errors": form_errors})
+
+# Activate Account
+def activate_account(request, uidb64, token):
+    try:
+        # Decode the uid from base64 to user id
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (User.DoesNotExist, ValueError, TypeError, OverflowError):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save()
+        messages.success(request, "Your account has been activated successfully! You can now log in.")
+        return redirect('login')
+    else:
+        messages.error(request, "The activation link is invalid or expired.")
+        return render(request, "events/activation_invalid.html")
 
 # Login
 def custom_login(request):
@@ -101,10 +124,17 @@ def custom_login(request):
 
         user = authenticate(request, username=username, password=password)
         if user is not None:
-            login(request, user)
-            return redirect('redirect-after-login')
+            if not user.is_active:
+                messages.error(request, "Your account is inactive. Please activate your account via email.")
+            else:
+                login(request, user)
+                return redirect('redirect-after-login')
         else:
-            messages.error(request, 'Invalid username or password.')
+            from django.contrib.auth.models import User
+            if not User.objects.filter(username=username).exists():
+                return redirect('access-restricted')
+            else:
+                messages.error(request, "Invalid username or password.")
 
     return render(request, 'events/login.html')
 
@@ -188,10 +218,13 @@ def event_list(request):
 
 @login_required
 def create_event(request):
-    form = EventForm(request.POST or None)
-    if form.is_valid():
-        form.save()
-        return redirect('event-list')
+    if request.method == 'POST':
+        form = EventForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('event-list')
+    else:
+        form = EventForm()
     return render(request, "events/event_form.html", {"form": form, "title": "Create Event"})
 
 @login_required
@@ -432,24 +465,6 @@ def user_list(request):
     return render(request, 'events/user_list.html', context)
 
 # RSVP
-def send_rsvp_confirmation_email(user, event):
-    subject = f"RSVP Confirmation for {event.name}"
-    message = (
-        f"Hi {user.first_name or user.username},\n\n"
-        f"You have successfully RSVPed for the event '{event.name}'.\n"
-        f"Date: {event.date}\n"
-        f"Time: {event.time}\n"
-        f"Location: {event.location}\n\n"
-        f"Thank you for your interest!"
-    )
-    send_mail(
-        subject,
-        message,
-        settings.DEFAULT_FROM_EMAIL,
-        [user.email],
-        fail_silently=False,
-    )
-
 @login_required
 @user_passes_test(is_participant)
 def rsvp_event(request, event_id):
@@ -460,7 +475,6 @@ def rsvp_event(request, event_id):
     else:
         event.participants.add(request.user)
         messages.success(request, "You have successfully RSVPed for this event!")
-        send_rsvp_confirmation_email(request.user, event)
 
     return redirect('event-list')
 
@@ -475,3 +489,7 @@ def cancel_rsvp(request, event_id):
         messages.warning(request, "You have not RSVPed for this event.")
 
     return redirect('event-list')
+
+# Restriction
+def access_restricted(request):
+    return render(request, "events/access_restricted.html")

@@ -12,6 +12,7 @@
 <table class="min-w-full bg-white shadow rounded-lg overflow-hidden">
   <thead class="bg-rose-100 text-rose-700 uppercase text-sm font-semibold">
     <tr>
+      <th class="py-3 px-4 text-left">Image</th>
       <th class="py-3 px-4 text-left">Name</th>
       <th class="py-3 px-4 text-left">Category</th>
       <th class="py-3 px-4 text-left">Date</th>
@@ -28,7 +29,11 @@
   <tbody>
     {% for event in events %}
     <tr class="border-b hover:bg-rose-50">
-      <td class="py-3 px-4">{{ event.name }}</td>
+      <td class="py-3 px-4">
+        <img src="{{ event.image.url }}" alt="{{ event.name }}" class="w-16 h-16 object-cover rounded">
+      </td>
+
+      <td class="py-3 px-4 font-semibold text-gray-800">{{ event.name }}</td>
       <td class="py-3 px-4">{{ event.category.name }}</td>
       <td class="py-3 px-4">{{ event.date }}</td>
       <td class="py-3 px-4">{{ event.time|time:"H:i" }}</td>
@@ -49,26 +54,27 @@
       </td>
 
       {% elif is_participant %}
-        <td class="py-3 px-4 text-center">
-            {% if user in event.participants.all %}
-                <form action="{% url 'cancel_rsvp' event.id %}" method="post" class="inline">
-                    {% csrf_token %}
-                    <button type="submit" class="bg-gray-400 hover:bg-gray-500 text-white px-3 py-1 rounded-lg">
-                        Cancel RSVP
-                    </button>
-                </form>
-            {% else %}
-                <a href="{% url 'rsvp-event' event.id %}" 
-                  class="bg-rose-500 hover:bg-rose-600 text-white px-3 py-1 rounded-lg cursor-pointer">
-                    RSVP
-                </a>
-            {% endif %}
-        </td>
+      <td class="py-3 px-4 text-center">
+        {% if user in event.participants.all %}
+          <form action="{% url 'cancel-rsvp' event.id %}" method="post" class="inline">
+            {% csrf_token %}
+            <button type="submit" 
+                    class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded-lg">
+              Cancel RSVP
+            </button>
+          </form>
+        {% else %}
+          <a href="{% url 'rsvp-event' event.id %}" 
+             class="bg-rose-500 hover:bg-rose-600 text-white px-3 py-1 rounded-lg">
+            RSVP
+          </a>
+        {% endif %}
+      </td>
       {% endif %}
     </tr>
     {% empty %}
     <tr>
-      <td colspan="{% if is_admin or is_organizer %}7{% elif is_participant %}7{% else %}6{% endif %}" 
+      <td colspan="{% if is_admin or is_organizer %}8{% elif is_participant %}8{% else %}7{% endif %}" 
           class="text-center py-4 text-gray-500 italic">
         No events found.
       </td>

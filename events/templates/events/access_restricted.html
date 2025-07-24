@@ -1,0 +1,17 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <title>Access Restricted</title>
+  <link rel="stylesheet" href="{% static 'css/output.css' %}">
+</head>
+<body class="bg-red-50 flex items-center justify-center min-h-screen">
+  <div class="bg-white p-10 rounded shadow-lg max-w-md text-center">
+    <h1 class="text-3xl font-bold mb-4 text-red-600">Access Restricted</h1>
+    <p class="mb-6 text-gray-700">You must <a href="{% url 'signup' %}" class="text-rose-600 underline">sign up</a> before you can log in.</p>
+    <a href="{% url 'signup' %}" class="inline-block bg-rose-600 text-white px-6 py-2 rounded hover:bg-rose-700 transition">Go to Signup</a>
+  </div>
+</body>
+</html>

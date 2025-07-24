@@ -1,5 +1,6 @@
 from django import forms
 from events.models import Event, Category
+from django.forms.widgets import ClearableFileInput
 
 class StyledFormMixin:
     default_classes = "border border-gray-300 p-3 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500"
@@ -30,6 +31,7 @@ class EventForm(StyledFormMixin, forms.ModelForm):
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
             'time': forms.TimeInput(attrs={'type': 'time'}),
+            'image': ClearableFileInput(attrs={'class': 'form-input'}),
         }
 
     def __init__(self, *args, **kwargs):
