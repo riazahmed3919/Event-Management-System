@@ -37,7 +37,7 @@ def send_activation_email_signal(sender, instance, created, **kwargs):
     if created and not instance.is_active:
         uid = urlsafe_base64_encode(force_bytes(instance.pk))
         token = default_token_generator.make_token(instance)
-        activation_link = f"http://localhost:8000{reverse('activate', kwargs={'uidb64': uid, 'token': token})}"
+        activation_link = f"{settings.FRONTEND_URL}{reverse('activate', kwargs={'uidb64': uid, 'token': token})}"
 
         subject = "Activate your account"
 
