@@ -35,7 +35,13 @@
             <a href="{% url 'participant-participants-list' %}" class="hover:text-rose-600">Participants</a>
           {% endif %}
 
-          <a href="{% url 'logout' %}" class="inline-block bg-rose-500 text-white px-4 py-2 rounded-full hover:bg-rose-600 transition">Logout</a>
+          <form method="post" action="{% url 'logout' %}" class="inline">
+            {% csrf_token %}
+            <button type="submit" class="bg-rose-500 text-white px-4 py-2 rounded-full hover:bg-rose-600 transition cursor-pointer">
+              Logout
+            </button>
+          </form>
+
         {% else %}
           <a href="{% url 'login' %}" class="inline-block bg-rose-600 text-white px-5 py-2 rounded-full text-md font-semibold hover:bg-rose-700 transition">Login</a>
           <a href="{% url 'signup' %}" class="inline-block ml-4 bg-white text-rose-600 border border-rose-600 px-5 py-2 rounded-full text-md font-semibold hover:bg-rose-50 transition">Sign Up</a>

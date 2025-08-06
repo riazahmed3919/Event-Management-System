@@ -1,11 +1,16 @@
 from django.urls import path
 from . import views
+from .views import PublicHomeView, SignupView, CustomLoginView, CustomLogoutView, AdminDashboardView, OrganizerDashboardView
 
 urlpatterns = [
-    path('', views.public_home, name='public-home'),
-    path('signup/', views.signup, name='signup'),
-    path('login/', views.custom_login, name='login'),
-    path('logout/', views.custom_logout, name='logout'),
+    # path('', views.public_home, name='public-home'),
+    path('', PublicHomeView.as_view(), name='public-home'),
+    # path('signup/', views.signup, name='signup'),
+    path('signup/', SignupView.as_view(), name='signup'),
+    # path('login/', views.custom_login, name='login'),
+    path('login/', CustomLoginView.as_view(), name='login'),
+    # path('logout/', views.custom_logout, name='logout'),
+    path('logout/', CustomLogoutView.as_view(), name='logout'), 
     path('activate/<uidb64>/<token>/', views.activate_account, name='activate'),
     path('access-restricted/', views.access_restricted, name='access-restricted'),
 
@@ -16,9 +21,11 @@ urlpatterns = [
     path('redirect-after-login/', views.redirect_after_login, name='redirect-after-login'),
 
     # Dashboards
-    path('dashboard/admin/', views.admin_dashboard, name='admin-dashboard'),
-    path('organizer/dashboard/', views.organizer_dashboard, name='organizer-dashboard'),
-    path('participant/dashboard/', views.participant_dashboard, name='participant-dashboard'),
+    # path('dashboard/admin/', views.admin_dashboard, name='admin-dashboard'),
+    path('dashboard/admin/', AdminDashboardView.as_view(), name='admin-dashboard'),
+    # path('organizer/dashboard/', views.organizer_dashboard, name='organizer-dashboard'),
+    path('dashboard/organizer/', OrganizerDashboardView.as_view(), name='organizer-dashboard'),
+    path('dashboard/participant/', views.participant_dashboard, name='participant-dashboard'),
 
     # Event
     path('events/', views.event_list, name='event-list'),

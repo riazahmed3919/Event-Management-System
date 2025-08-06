@@ -3,14 +3,19 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from events.models import Event, Category
-from events.forms import EventForm, CategoryForm
+from .models import Event, Category
+from .forms import EventForm, CategoryForm
 from django.utils.timezone import now
 from django.views.decorators.http import require_http_methods
 from django.db.models import Prefetch
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
 from django.contrib.auth.tokens import default_token_generator
+from django.views.generic import TemplateView
+from django.views import View
+from django.contrib.auth.views import LoginView, LogoutView
+from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
 
 # Role checkers
 def is_admin(user):
@@ -25,7 +30,8 @@ def is_participant(user):
 def is_admin_or_organizer_or_participant(user):
     return is_admin(user) or is_organizer(user) or is_participant(user)
 
-# Public home
+"""
+# Public home FBV
 def public_home(request):
     total_events = Event.objects.count()
     total_participants = User.objects.filter(groups__name='Participant').count()
@@ -41,8 +47,23 @@ def public_home(request):
     }
 
     return render(request, "events/public_home.html", context)
+"""
 
-# Signup
+# CBV for Public Home View
+class PublicHomeView(TemplateView):
+    template_name = 'events/public_home.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['total_events'] = Event.objects.count()
+        context['total_participants'] = User.objects.filter(groups__name='Participant').count()
+        context['total_categories'] = Category.objects.count()
+        context['upcoming_events'] = Event.objects.filter(date__gte=now().date()).order_by('date')[:2]
+
+        return context
+
+"""
+# Signup FBV
 def signup(request):
     form_errors = {}
 
@@ -94,6 +115,64 @@ def signup(request):
             messages.error(request, "Please fix the errors below.")
 
     return render(request, "events/signup.html", {"form_errors": form_errors})
+"""
+
+# CBV for Signup View
+class SignupView(View):
+    template_name = "events/signup.html"
+
+    def get(self, request):
+        return render(request, self.template_name, {"form_errors": {}})
+
+    def post(self, request):
+        form_errors = {}
+
+        username = request.POST.get("username", "").strip()
+        first_name = request.POST.get("first_name", "").strip()
+        last_name = request.POST.get("last_name", "").strip()
+        email = request.POST.get("email", "").strip()
+        password1 = request.POST.get("password1", "")
+        password2 = request.POST.get("password2", "")
+
+        if not username:
+            form_errors["username"] = "Username is required."
+        elif User.objects.filter(username=username).exists():
+            form_errors["username"] = "Username already exists."
+
+        if not email:
+            form_errors["email"] = "Email is required."
+        elif User.objects.filter(email=email).exists():
+            form_errors["email"] = "Email is already registered."
+
+        if not password1:
+            form_errors["password1"] = "Password is required."
+
+        if not password2:
+            form_errors["password2"] = "Please confirm your password."
+
+        if password1 and password2 and password1 != password2:
+            form_errors["password2"] = "Passwords do not match."
+
+        if not form_errors:
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password1,
+                first_name=first_name,
+                last_name=last_name,
+                is_active=False
+            )
+            user.save()
+
+            participant_group, _ = Group.objects.get_or_create(name='Participant')
+            user.groups.add(participant_group)
+
+            messages.success(request, "Account created successfully! Please check your email to activate your account.")
+            return redirect('login')
+        else:
+            messages.error(request, "Please fix the errors below.")
+
+        return render(request, self.template_name, {"form_errors": form_errors})
 
 # Activate Account
 def activate_account(request, uidb64, token):
@@ -113,7 +192,8 @@ def activate_account(request, uidb64, token):
         messages.error(request, "The activation link is invalid or expired.")
         return render(request, "events/activation_invalid.html")
 
-# Login
+"""
+# Login FBV
 def custom_login(request):
     if request.user.is_authenticated:
         return redirect('redirect-after-login')
@@ -137,14 +217,45 @@ def custom_login(request):
                 messages.error(request, "Invalid username or password.")
 
     return render(request, 'events/login.html')
+"""
 
-# Logout
+# CBV for Custom Login Form
+class CustomLoginView(LoginView):
+    template_name = 'events/login.html'
+    
+    def post(self, request, *args, **kwargs):
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            if not user.is_active:
+                messages.error(request, "Your account is inactive. Please activate your account via email.")
+                return self.form_invalid(self.get_form())
+            else:
+                login(request, user)
+                return redirect('redirect-after-login')
+        else:
+            if not User.objects.filter(username=username).exists():
+                return redirect('access-restricted')
+            else:
+                messages.error(request, "Invalid username or password.")
+                return self.form_invalid(self.get_form())
+
+"""
+# Logout FBV
 @login_required
 def custom_logout(request):
     logout(request)
     return redirect('public-home')
+"""
 
-# Admin dashboard
+# CBV for Custom Logout View
+class CustomLogoutView(LogoutView):
+    next_page = reverse_lazy('public-home')
+
+"""
+# Admin dashboard FBV
 @user_passes_test(is_admin)
 def admin_dashboard(request):
     today = now().date()
@@ -161,8 +272,28 @@ def admin_dashboard(request):
         "today": today,
     }
     return render(request, "events/admin_dashboard.html", context)
+"""
 
-# Organizer Dashboard
+# CBV for Admin Dashboard View
+@method_decorator(user_passes_test(is_admin), name='dispatch')
+class AdminDashboardView(TemplateView):
+    template_name = 'events/admin_dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        today = now().date()
+        context['today'] = today
+        context['counts'] = {
+            "events": Event.objects.count(),
+            "categories": Category.objects.count(),
+            "participants": User.objects.filter(groups__name="Participant").count(),
+            "groups": Group.objects.count(),
+            "today_events": Event.objects.filter(date=today).count(),
+        }
+        return context
+
+"""
+# Organizer Dashboard FBV
 @login_required
 @user_passes_test(is_organizer)
 def organizer_dashboard(request):
@@ -178,6 +309,22 @@ def organizer_dashboard(request):
         }
     }
     return render(request, 'events/organizer_dashboard.html', context)
+"""
+
+# CBV for Organizer Dashboard View
+organizer_dashboard_decorator = [login_required, user_passes_test(is_organizer)]
+@method_decorator(organizer_dashboard_decorator, name='dispatch')
+class OrganizerDashboardView(TemplateView):
+    template_name = 'events/organizer_dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['counts'] = {
+            "events": Event.objects.count(),
+            "categories": Category.objects.count(),
+            "participants": User.objects.filter(groups__name='Participant').count(),
+        }
+        return context
 
 # Participant Dashboard
 @login_required
