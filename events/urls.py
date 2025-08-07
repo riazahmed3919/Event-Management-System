@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import PublicHomeView, SignupView, CustomLoginView, CustomLogoutView, AdminDashboardView, OrganizerDashboardView, ProfileView, EditProfileView, CustomPasswordChangeView
+from .views import PublicHomeView, SignupView, CustomLoginView, CustomLogoutView, AdminDashboardView, OrganizerDashboardView, ProfileView, EditProfileView, CustomPasswordChangeView, CustomPasswordResetView, CustomPasswordResetConfirmView, CustomPasswordResetDoneView
 
 urlpatterns = [
     # path('', views.public_home, name='public-home'),
@@ -16,7 +16,10 @@ urlpatterns = [
     path('profile/', ProfileView.as_view(), name='profile'),
     path('profile/edit/', EditProfileView.as_view(), name='edit-profile'),
     path('change-password/', CustomPasswordChangeView.as_view(), name='change-password'),
-
+    path('password-reset/', CustomPasswordResetView.as_view(), name='password_reset'),
+    path('password-reset/done/', CustomPasswordResetDoneView.as_view(template_name='accounts/password_reset_done.html'), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', CustomPasswordResetConfirmView.as_view(template_name='accounts/password_reset_confirm.html'), name='password_reset_confirm'),
+    
     # User list for admins
     path('users/', views.user_list, name='user-list'),
 

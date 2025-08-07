@@ -1,14 +1,36 @@
 {% extends "events/base.html" %}
+
 {% block content %}
-<div class="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md border border-rose-200">
-  <h2 class="text-3xl font-semibold text-rose-600 mb-6 text-center">Edit Profile</h2>
+<div class="max-w-md mx-auto mt-10 p-8 bg-white rounded-lg shadow-lg border border-rose-300">
+  <h2 class="text-3xl font-bold text-rose-600 mb-8 text-center">Edit Profile</h2>
+
   <form method="post" enctype="multipart/form-data" class="space-y-6">
     {% csrf_token %}
-    {{ form.as_p|safe }}
-    <button 
-      type="submit" 
-      class="w-full bg-rose-500 hover:bg-rose-600 text-white font-semibold py-3 rounded-md transition-colors duration-300"
-    >
+
+    {% for field in form %}
+      <div>
+        <label for="{{ field.id_for_label }}" class="block mb-2 font-semibold text-rose-700">
+          {{ field.label }}
+          {% if field.field.required %}
+            <span class="text-red-500">*</span>
+          {% endif %}
+        </label>
+
+        {{ field }}
+
+        {% if field.help_text %}
+          <p class="text-sm text-gray-500 mt-1">{{ field.help_text }}</p>
+        {% endif %}
+
+        {% if field.errors %}
+          <p class="mt-1 text-red-600 text-sm font-medium">
+            {{ field.errors|striptags }}
+          </p>
+        {% endif %}
+      </div>
+    {% endfor %}
+
+    <button type="submit" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold py-3 rounded-md transition duration-300">
       Save Changes
     </button>
   </form>

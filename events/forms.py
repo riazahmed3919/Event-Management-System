@@ -51,16 +51,44 @@ class CategoryForm(StyledFormMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.apply_styled_widget()
 
-class EditProfileForm(StyledFormMixin, forms.ModelForm):
+class EditProfileForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         fields = ['first_name', 'last_name', 'email', 'profile_image', 'phone_number']
 
-class CustomPasswordChangeForm(StyledFormMixin, PasswordChangeForm):
-    pass
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        for field_name, field in self.fields.items():
+            existing_classes = field.widget.attrs.get('class', '')
+            base_classes = (
+                "block w-full rounded-md border border-rose-300 "
+                "focus:border-rose-500 focus:ring-1 focus:ring-rose-500 p-2"
+            )
+            field.widget.attrs['class'] = (existing_classes + " " + base_classes).strip()
 
-class CustomPasswordResetForm(StyledFormMixin, PasswordResetForm):
-    pass
+class CustomPasswordChangeForm( PasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({
+                'class': 'border border-gray-300 p-3 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500',
+                'placeholder': field.label,
+                'autocomplete': 'off',
+            })
+
+class CustomPasswordResetForm(PasswordResetForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            existing_classes = field.widget.attrs.get('class', '')
+            base_classes = (
+                "block w-full rounded-md border border-rose-300 "
+                "focus:border-rose-500 focus:ring-1 focus:ring-rose-500 p-2"
+            )
+            field.widget.attrs['class'] = (existing_classes + " " + base_classes).strip()
 
 class CustomPasswordResetConfirmForm(StyledFormMixin, SetPasswordForm):
-    pass
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.apply_styled_widget()
