@@ -1,6 +1,10 @@
 from django import forms
 from events.models import Event, Category
 from django.forms.widgets import ClearableFileInput
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm, PasswordResetForm, SetPasswordForm
+from django.contrib.auth import get_user_model
+
+CustomUser = get_user_model()
 
 class StyledFormMixin:
     default_classes = "border border-gray-300 p-3 w-full rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500"
@@ -46,3 +50,17 @@ class CategoryForm(StyledFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.apply_styled_widget()
+
+class EditProfileForm(StyledFormMixin, forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['first_name', 'last_name', 'email', 'profile_image', 'phone_number']
+
+class CustomPasswordChangeForm(StyledFormMixin, PasswordChangeForm):
+    pass
+
+class CustomPasswordResetForm(StyledFormMixin, PasswordResetForm):
+    pass
+
+class CustomPasswordResetConfirmForm(StyledFormMixin, SetPasswordForm):
+    pass

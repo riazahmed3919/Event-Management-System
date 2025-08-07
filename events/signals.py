@@ -3,12 +3,14 @@ from django.dispatch import receiver
 from django.core.mail import send_mail
 from django.conf import settings
 from .models import Event
-from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.contrib.auth.tokens import default_token_generator
 from django.db.models.signals import post_save
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 @receiver(m2m_changed, sender=Event.participants.through)
 def send_rsvp_email_signal(sender, instance, action, pk_set, **kwargs):

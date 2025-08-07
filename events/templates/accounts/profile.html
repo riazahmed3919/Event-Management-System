@@ -1,0 +1,51 @@
+{% extends "events/base.html" %}
+{% load static %}
+
+{% block title %}User Profile{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto p-6 bg-white rounded shadow-md mt-10">
+    <h1 class="text-3xl font-bold mb-6 text-rose-600">My Profile</h1>
+
+    <div class="flex items-center space-x-6 mb-6">
+        {% if profile_image %}
+            <img src="{{ profile_image.url }}" alt="Profile Image" class="w-24 h-24 rounded-full object-cover border-2 border-rose-600" />
+        {% else %}
+            <img src="{% static 'media/profile/default.jpg' %}" alt="Default Profile Image" class="w-24 h-24 rounded-full object-cover border-2 border-rose-600" />
+        {% endif %}
+
+    
+        <div>
+        <h2 class="text-xl font-semibold">{{ name }}</h2>
+        <p class="text-gray-600">{{ email }}</p>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <h3 class="font-semibold text-rose-600">Phone Number:</h3>
+        <p class="text-gray-700">{{ phone_number|default:"No phone number available." }}</p>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 text-gray-700">
+        <div>
+        <strong>Username:</strong> {{ username }}
+        </div>
+        <div>
+        <strong>Member Since:</strong> {{ member_since|date:"F j, Y" }}
+        </div>
+        <div>
+        <strong>Last Login:</strong> 
+        {% if last_login %}
+            {{ last_login|date:"F j, Y, g:i a" }}
+        {% else %}
+            Never logged in
+        {% endif %}
+        </div>
+    </div>
+
+    <div class="mt-6">
+        <a href="{% url 'edit-profile' %}" class="inline-block px-6 py-2 bg-rose-600 text-white rounded hover:bg-rose-700 transition">Edit Profile</a>
+        <a href="{% url 'change-password' %}" class="inline-block px-6 py-2 ml-4 border border-rose-600 text-rose-600 rounded hover:bg-rose-50 transition">Change Password</a>
+    </div>
+</div>
+{% endblock %}

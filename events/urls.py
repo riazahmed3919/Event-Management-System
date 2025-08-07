@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import PublicHomeView, SignupView, CustomLoginView, CustomLogoutView, AdminDashboardView, OrganizerDashboardView
+from .views import PublicHomeView, SignupView, CustomLoginView, CustomLogoutView, AdminDashboardView, OrganizerDashboardView, ProfileView, EditProfileView, CustomPasswordChangeView
 
 urlpatterns = [
     # path('', views.public_home, name='public-home'),
@@ -13,6 +13,9 @@ urlpatterns = [
     path('logout/', CustomLogoutView.as_view(), name='logout'), 
     path('activate/<uidb64>/<token>/', views.activate_account, name='activate'),
     path('access-restricted/', views.access_restricted, name='access-restricted'),
+    path('profile/', ProfileView.as_view(), name='profile'),
+    path('profile/edit/', EditProfileView.as_view(), name='edit-profile'),
+    path('change-password/', CustomPasswordChangeView.as_view(), name='change-password'),
 
     # User list for admins
     path('users/', views.user_list, name='user-list'),

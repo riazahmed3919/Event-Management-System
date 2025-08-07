@@ -41,6 +41,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+AUTH_USER_MODEL = 'events.CustomUser'
+
 ROOT_URLCONF = 'event_management.urls'
 
 TEMPLATES = [
@@ -75,7 +77,7 @@ WSGI_APPLICATION = 'event_management.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(
         # Replace this value with your local database's connection string.
-        default='postgresql://event_management_db_4g4o_user:O9h3r0d1bvn6C7cdrgJZtdm4V6JVSoxT@dpg-d29m9mbe5dus73cn7cig-a.oregon-postgres.render.com/event_management_db_4g4o',
+        default='postgresql://event_management_db_6810_user:QRpaVXXJQs2IKndo2NfIr4e1ChOBmWXn@dpg-d29qorngi27c73ao4gd0-a.oregon-postgres.render.com/event_management_db_6810',
         conn_max_age=600
     )
 }

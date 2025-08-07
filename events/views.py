@@ -1,21 +1,26 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .models import Event, Category
-from .forms import EventForm, CategoryForm
+from .forms import EventForm, CategoryForm, EditProfileForm, CustomPasswordChangeForm
 from django.utils.timezone import now
 from django.views.decorators.http import require_http_methods
 from django.db.models import Prefetch
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
 from django.contrib.auth.tokens import default_token_generator
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, UpdateView
 from django.views import View
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+CustomUser = get_user_model()
 
 # Role checkers
 def is_admin(user):
@@ -30,25 +35,6 @@ def is_participant(user):
 def is_admin_or_organizer_or_participant(user):
     return is_admin(user) or is_organizer(user) or is_participant(user)
 
-"""
-# Public home FBV
-def public_home(request):
-    total_events = Event.objects.count()
-    total_participants = User.objects.filter(groups__name='Participant').count()
-    total_categories = Category.objects.count()
-
-    upcoming_events = Event.objects.filter(date__gte=now().date()).order_by('date')[:2]
-
-    context = {
-        "total_events": total_events,
-        "total_participants": total_participants,
-        "total_categories": total_categories,
-        "upcoming_events": upcoming_events,
-    }
-
-    return render(request, "events/public_home.html", context)
-"""
-
 # CBV for Public Home View
 class PublicHomeView(TemplateView):
     template_name = 'events/public_home.html'
@@ -61,61 +47,6 @@ class PublicHomeView(TemplateView):
         context['upcoming_events'] = Event.objects.filter(date__gte=now().date()).order_by('date')[:2]
 
         return context
-
-"""
-# Signup FBV
-def signup(request):
-    form_errors = {}
-
-    if request.method == "POST":
-        username = request.POST.get("username", "").strip()
-        first_name = request.POST.get("first_name", "").strip()
-        last_name = request.POST.get("last_name", "").strip()
-        email = request.POST.get("email", "").strip()
-        password1 = request.POST.get("password1", "")
-        password2 = request.POST.get("password2", "")
-
-        if not username:
-            form_errors["username"] = "Username is required."
-        elif User.objects.filter(username=username).exists():
-            form_errors["username"] = "Username already exists."
-
-        if not email:
-            form_errors["email"] = "Email is required."
-        elif User.objects.filter(email=email).exists():
-            form_errors["email"] = "Email is already registered."
-
-        if not password1:
-            form_errors["password1"] = "Password is required."
-
-        if not password2:
-            form_errors["password2"] = "Please confirm your password."
-
-        if password1 and password2 and password1 != password2:
-            form_errors["password2"] = "Passwords do not match."
-
-        if not form_errors:
-            user = User.objects.create_user(
-                username=username,
-                email=email,
-                password=password1,
-                first_name=first_name,
-                last_name=last_name,
-                is_active=False
-            )
-            user.save()
-
-            participant_group, _ = Group.objects.get_or_create(name='Participant')
-            user.groups.add(participant_group)
-
-            messages.success(request, "Account created successfully! Please check your email to activate your account.")
-            return redirect('login')
-
-        else:
-            messages.error(request, "Please fix the errors below.")
-
-    return render(request, "events/signup.html", {"form_errors": form_errors})
-"""
 
 # CBV for Signup View
 class SignupView(View):
@@ -192,33 +123,6 @@ def activate_account(request, uidb64, token):
         messages.error(request, "The activation link is invalid or expired.")
         return render(request, "events/activation_invalid.html")
 
-"""
-# Login FBV
-def custom_login(request):
-    if request.user.is_authenticated:
-        return redirect('redirect-after-login')
-
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            if not user.is_active:
-                messages.error(request, "Your account is inactive. Please activate your account via email.")
-            else:
-                login(request, user)
-                return redirect('redirect-after-login')
-        else:
-            from django.contrib.auth.models import User
-            if not User.objects.filter(username=username).exists():
-                return redirect('access-restricted')
-            else:
-                messages.error(request, "Invalid username or password.")
-
-    return render(request, 'events/login.html')
-"""
-
 # CBV for Custom Login Form
 class CustomLoginView(LoginView):
     template_name = 'events/login.html'
@@ -242,37 +146,9 @@ class CustomLoginView(LoginView):
                 messages.error(request, "Invalid username or password.")
                 return self.form_invalid(self.get_form())
 
-"""
-# Logout FBV
-@login_required
-def custom_logout(request):
-    logout(request)
-    return redirect('public-home')
-"""
-
 # CBV for Custom Logout View
 class CustomLogoutView(LogoutView):
     next_page = reverse_lazy('public-home')
-
-"""
-# Admin dashboard FBV
-@user_passes_test(is_admin)
-def admin_dashboard(request):
-    today = now().date()
-    counts = {
-        "events": Event.objects.count(),
-        "categories": Category.objects.count(),
-        "participants": User.objects.filter(groups__name="Participant").count(),
-        "groups": Group.objects.count(),
-        "today_events": Event.objects.filter(date=today).count(),
-    }
-
-    context = {
-        "counts": counts,
-        "today": today,
-    }
-    return render(request, "events/admin_dashboard.html", context)
-"""
 
 # CBV for Admin Dashboard View
 @method_decorator(user_passes_test(is_admin), name='dispatch')
@@ -291,25 +167,6 @@ class AdminDashboardView(TemplateView):
             "today_events": Event.objects.filter(date=today).count(),
         }
         return context
-
-"""
-# Organizer Dashboard FBV
-@login_required
-@user_passes_test(is_organizer)
-def organizer_dashboard(request):
-    total_events = Event.objects.count()
-    total_categories = Category.objects.count()
-    total_participants = User.objects.filter(groups__name='Participant').count()
-
-    context = {
-        "counts": {
-            "events": total_events,
-            "categories": total_categories,
-            "participants": total_participants,
-        }
-    }
-    return render(request, 'events/organizer_dashboard.html', context)
-"""
 
 # CBV for Organizer Dashboard View
 organizer_dashboard_decorator = [login_required, user_passes_test(is_organizer)]
@@ -640,3 +497,32 @@ def cancel_rsvp(request, event_id):
 # Restriction
 def access_restricted(request):
     return render(request, "events/access_restricted.html")
+
+class ProfileView(LoginRequiredMixin, TemplateView):
+    template_name = 'accounts/profile.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        context['profile_image'] = user.profile_image
+        context['name'] = user.get_full_name() or user.username
+        context['email'] = user.email
+        context['phone_number'] = user.phone_number
+        context['username'] = user.username
+        context['member_since'] = user.date_joined
+        context['last_login'] = user.last_login
+        return context
+    
+class EditProfileView(LoginRequiredMixin, UpdateView):
+    model = CustomUser
+    form_class = EditProfileForm
+    template_name = 'accounts/edit_profile.html'
+    success_url = reverse_lazy('profile')
+
+    def get_object(self):
+        return self.request.user
+    
+class CustomPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
+    form_class = CustomPasswordChangeForm
+    template_name = 'accounts/change_password.html'
+    success_url = reverse_lazy('profile')
